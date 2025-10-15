@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Setup</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        video {
+            width: 480px;
+            height: 360px;
+            border-radius: 10px;
+            background: #000;
+            margin-top: 20px;
+        }
+        button {
+            margin-top: 20px;
+            background-color: #00bcd4;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Camera & Mic Setup</h1>
+        <p>Click below to enable your camera and microphone before the interview starts.</p>
+        <video id="video" autoplay muted></video>
+        <br>
+        <button id="enableCam">Turn On Camera</button>
+        <button id="startInterview" style="display:none;">Proceed to Interview</button>
+    </div>
+
+    <script>
+        const enableBtn = document.getElementById('enableCam');
+        const startBtn = document.getElementById('startInterview');
+        const video = document.getElementById('video');
+
+        enableBtn.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                video.srcObject = stream;
+                enableBtn.style.display = 'none';
+                startBtn.style.display = 'inline-block';
+            } catch (err) {
+                alert('Camera or microphone access denied.');
+                console.error(err);
+            }
+        });
+
+        startBtn.addEventListener('click', () => {
+            window.location.href = "{{ url_for('interview') }}";
+        });
+    </script>
+</body>
+</html>

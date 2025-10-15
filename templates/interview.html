@@ -1,488 +1,285 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Interview Simulation | AI Interview Trainer</title>
-<style>
-  :root{--accent:#00b4db;--dark:#0f2027;--card:#1e3440}
-  body{margin:0;font-family:Inter,Segoe UI,Arial;background:linear-gradient(180deg,#0b1320,#102633);color:#e6f0f6;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px}
-  header{width:100%;max-width:1100px;margin-bottom:18px}
-  .brand{font-size:1.4rem;font-weight:600}
-  .container{width:100%;max-width:1100px;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border-radius:12px;padding:18px;box-shadow:0 8px 30px rgba(2,8,23,0.6)}
-  .cols{display:flex;gap:18px}
-  .left,.right{flex:1}
-  .card{background:var(--card);border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:0 6px 18px rgba(0,0,0,0.4)}
-  h2{margin:6px 0 12px;font-size:1.1rem}
-  button.btn{background:var(--accent);border:none;color:#042; padding:10px 16px;border-radius:10px;font-weight:600;cursor:pointer}
-  .small{font-size:0.9rem;color:#bcd}
-  #videoElem{width:100%;height:230px;background:#000;border-radius:8px;object-fit:cover}
-  .questionBox{min-height:90px;display:flex;align-items:center;justify-content:center;font-size:1.05rem;padding:12px}
-  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .progress{height:8px;background:#0c2a36;border-radius:6px;overflow:hidden}
-  .progress > div{height:100%;background:linear-gradient(90deg,var(--accent),#0083b0);width:0%}
-  .metric{display:flex;justify-content:space-between;padding:8px 6px;border-radius:6px;background:rgba(255,255,255,0.02);margin-bottom:6px}
-  .hidden{display:none}
-  .transcript{background:rgba(0,0,0,0.2);padding:8px;border-radius:6px;color:#cff}
-  .center{display:flex;align-items:center;justify-content:center}
-  .pill{display:inline-block;background:rgba(255,255,255,0.04);padding:6px 10px;border-radius:999px}
-  footer{width:100%;max-width:1100px;margin-top:14px;color:#99b}
-</style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Interview — AI Interview Trainer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
+<body class="interview-page">
+  <div class="page-card wide">
+    <h2>Live Interview — Simulation</h2>
 
-<header>
-  <div class="brand">AI Interview Trainer — Simulation</div>
-</header>
-
-<div class="container">
-  <div class="cols">
-    <div class="left">
-      <div class="card">
-        <h2>1) Setup & Resume (local)</h2>
-        <div class="small">Paste a short resume snippet or keywords so the system can tailor questions (no files leave your machine).</div>
-        <textarea id="resumeText" rows="6" style="width:100%;margin-top:8px;border-radius:8px;padding:8px;background:#061722;border:none;color:#cfe" placeholder="Paste resume text or keywords (e.g., 'React, Python, machine learning, backend')"></textarea>
-        <div style="display:flex;gap:8px;margin-top:10px">
-          <button id="genBtn" class="btn">Generate Questions</button>
-          <button id="useSample" class="btn" style="background:#007a99">Use Sample Resume</button>
+    <div class="interview-layout">
+      <!-- Left: Video -->
+      <div class="video-pane">
+        <div class="video-wrap">
+          <video id="videoElem" playsinline autoplay muted></video>
         </div>
-        <div style="margin-top:10px" class="small">Questions generated locally from simple keyword matching. Later we will replace this with resume parsing & AI.</div>
-      </div>
-
-      <div class="card">
-        <h2>2) Camera & Mic</h2>
-        <div class="small">Allow camera and microphone access. Video preview below will be used for posture detection (demo).</div>
-        <video id="videoElem" autoplay muted playsinline></video>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button id="startCam" class="btn">Start Camera</button>
-          <button id="stopCam" class="btn" style="background:#bb3d3d">Stop Camera</button>
-        </div>
-        <div class="small" style="margin-top:8px">Face status: <span id="faceStatus" class="pill">unknown</span></div>
-      </div>
-
-    </div>
-
-    <div class="right">
-      <div class="card">
-        <h2>3) Live Interview</h2>
-        <div class="small">AI voice will read a question. Press <strong>Record</strong> to answer, press <strong>Stop</strong> when done. Use Next to go forward.</div>
-
-        <div class="questionBox" id="questionText">Press <em>Generate Questions</em> to begin.</div>
-
-        <div class="controls">
-          <button id="speakQ" class="btn">🔈 Speak Question</button>
-          <button id="recordBtn" class="btn" style="background:#55aa55">● Record</button>
-          <button id="stopRec" class="btn" style="background:#bb3d3d">■ Stop</button>
-          <button id="nextQ" class="btn" style="background:#005f73">Next Question</button>
-        </div>
-
-        <div style="margin-top:12px" class="small">Question <span id="qIndex">0</span> / <span id="qTotal">0</span></div>
-        <div class="progress" style="margin-top:6px"><div id="progressBar"></div></div>
-
-        <div style="margin-top:12px">
-          <h2 style="font-size:1rem">Latest Transcript</h2>
-          <div id="transcript" class="transcript">—</div>
-        </div>
-
-        <div style="margin-top:12px">
-          <h2 style="font-size:1rem">Recordings</h2>
-          <div id="recordingsList" class="small">none yet</div>
+        <div style="margin-top:12px;">
+          <button id="enableMedia" class="btn">Enable Camera & Mic</button>
+          <button id="stopMedia" class="btn outline" disabled>Stop</button>
+          <div id="mediaStatus" class="muted" style="margin-top:8px">Camera is off — questions will appear after enabling.</div>
         </div>
       </div>
 
-      <div class="card">
-        <h2>4) Post-Interview Feedback</h2>
-        <div class="small">When you finish all questions, click <strong>End Interview</strong> (a button appears). Calculated using simple heuristics:</div>
-        <div id="feedbackArea" class="hidden" style="margin-top:10px">
-          <div class="metric"><div>Content relevance</div><div id="m_content">—</div></div>
-          <div class="metric"><div>Filler words</div><div id="m_filler">—</div></div>
-          <div class="metric"><div>Speaking rate (wpm)</div><div id="m_wpm">—</div></div>
-          <div class="metric"><div>Body posture (face detected)</div><div id="m_posture">—</div></div>
-          <div class="metric"><div>Overall confidence score</div><div id="m_conf">—</div></div>
-          <div style="margin-top:8px" class="center"><button id="downloadReport" class="btn">Download Simple Report</button></div>
-        </div>
-        <div id="endControls" style="margin-top:12px"></div>
-      </div>
+      <!-- Right: Questions & Controls -->
+      <div class="control-pane">
+        <div id="qPanel" class="hidden">
+          <div class="question-box" id="questionText">Press Start Interview to begin</div>
 
+          <div class="controls-row">
+            <button id="startInterview" class="btn">Start Interview</button>
+            <button id="speakQ" class="btn" disabled>🔈 Speak Question</button>
+            <button id="recordBtn" class="btn" style="background:#1db954" disabled>● Record</button>
+            <button id="stopRec" class="btn outline" disabled>■ Stop</button>
+            <button id="nextQ" class="btn outline" disabled>Next</button>
+          </div>
+
+          <div style="margin-top:12px">
+            <div class="muted">Question <span id="qIndex">0</span> / <span id="qTotal">0</span></div>
+            <div class="progress"><div id="progressBar"></div></div>
+          </div>
+
+          <div style="margin-top:12px">
+            <h3>Latest Transcript</h3>
+            <div id="transcript" class="transcript">—</div>
+            <h3 style="margin-top:12px">Recordings</h3>
+            <div id="recordingsList" class="recordings-list">none yet</div>
+          </div>
+
+          <div id="endControls" style="margin-top:14px"></div>
+        </div>
+
+        <div id="mediaBlockedPanel" class="muted">
+          Questions appear after you enable camera & microphone.
+        </div>
+      </div>
     </div>
   </div>
-</div>
-
-<footer>
-  Tip: This demo runs in your browser. For production we will upload recordings and run robust ML models on server side.
-</footer>
 
 <script>
-/* -------------------------
-  Interview Simulation JS
-   - Local question generation by keywords
-   - Camera & microphone capture
-   - Browser speechSynthesis for AI voice
-   - MediaRecorder to save audio blobs
-   - (Optional) Web Speech API for transcript if available
-   - Basic feedback heuristics after interview
--------------------------*/
-
-let questions = [];
+// client-side interaction
+const questions = {{ questions|tojson }};
 let qIdx = 0;
-let recordings = []; // {q,text,blob,duration}
+let recordings = [];
+let mediaStream = null;
 let mediaRecorder = null;
 let recordedChunks = [];
 let recognition = null;
 let isRecording = false;
-let startTime = 0;
-let faceDetected = false;
-const fillerList = ['um','uh','like','you know','so','actually','basically'];
 
 // elements
-const resumeText = document.getElementById('resumeText');
-const genBtn = document.getElementById('genBtn');
-const useSample = document.getElementById('useSample');
-const questionText = document.getElementById('questionText');
-const qIndex = document.getElementById('qIndex');
-const qTotal = document.getElementById('qTotal');
+const videoElem = document.getElementById('videoElem');
+const enableMedia = document.getElementById('enableMedia');
+const stopMedia = document.getElementById('stopMedia');
+const mediaStatus = document.getElementById('mediaStatus');
+const qPanel = document.getElementById('qPanel');
+const startInterview = document.getElementById('startInterview');
 const speakQ = document.getElementById('speakQ');
 const recordBtn = document.getElementById('recordBtn');
 const stopRec = document.getElementById('stopRec');
 const nextQ = document.getElementById('nextQ');
+const questionText = document.getElementById('questionText');
+const qIndex = document.getElementById('qIndex');
+const qTotal = document.getElementById('qTotal');
+const progressBar = document.getElementById('progressBar');
 const transcriptEl = document.getElementById('transcript');
 const recordingsList = document.getElementById('recordingsList');
-const progressBar = document.getElementById('progressBar');
-const feedbackArea = document.getElementById('feedbackArea');
-const m_content = document.getElementById('m_content');
-const m_filler = document.getElementById('m_filler');
-const m_wpm = document.getElementById('m_wpm');
-const m_posture = document.getElementById('m_posture');
-const m_conf = document.getElementById('m_conf');
 const endControls = document.getElementById('endControls');
-const downloadReport = document.getElementById('downloadReport');
 
-// camera
-const videoElem = document.getElementById('videoElem');
-const startCam = document.getElementById('startCam');
-const stopCam = document.getElementById('stopCam');
-const faceStatus = document.getElementById('faceStatus');
+qTotal.innerText = questions.length || 0;
 
-let localStream = null;
-
-startCam.onclick = async () => {
+// enable camera & mic - until user allows, questions hidden
+enableMedia.onclick = async () => {
   try {
-    localStream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 }, audio: true });
-    videoElem.srcObject = localStream;
-    faceStatus.innerText = 'checking...';
-    detectFaceOnce();
-  } catch(e){
-    alert('Camera/mic permission denied or not available: ' + e);
+    mediaStream = await navigator.mediaDevices.getUserMedia({ video: { width:640 }, audio: true });
+    videoElem.srcObject = mediaStream;
+    mediaStatus.innerText = "Camera & mic enabled.";
+    enableMedia.disabled = true;
+    stopMedia.disabled = false;
+    // show questions panel now that media is available
+    qPanel.classList.remove('hidden');
+    document.getElementById('mediaBlockedPanel').style.display = 'none';
+  } catch (e) {
+    alert("Unable to access camera/microphone. Please allow permissions.");
   }
 };
-stopCam.onclick = () => {
-  if(localStream) {
-    localStream.getTracks().forEach(t=>t.stop());
-    localStream = null;
+
+stopMedia.onclick = () => {
+  if(mediaStream){
+    mediaStream.getTracks().forEach(t => t.stop());
+    mediaStream = null;
     videoElem.srcObject = null;
-    faceStatus.innerText = 'stopped';
-    faceDetected = false;
   }
+  mediaStatus.innerText = "Camera stopped.";
+  enableMedia.disabled = false;
+  stopMedia.disabled = true;
+  qPanel.classList.add('hidden');
+  document.getElementById('mediaBlockedPanel').style.display = 'block';
 };
 
-// minimal face detection using FaceDetector API if available
-async function detectFaceOnce() {
-  try {
-    if('FaceDetector' in window){
-      const fd = new FaceDetector();
-      const canvas = document.createElement('canvas');
-      canvas.width = videoElem.videoWidth || 640;
-      canvas.height = videoElem.videoHeight || 480;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(videoElem, 0, 0, canvas.width, canvas.height);
-      const faces = await fd.detect(canvas);
-      if(faces && faces.length>0){
-        faceDetected = true;
-        faceStatus.innerText = 'face detected';
-      } else {
-        faceDetected = false;
-        faceStatus.innerText = 'no face';
-      }
-    } else {
-      // fallback: just mark face as "available" when camera on
-      faceDetected = !!localStream;
-      faceStatus.innerText = faceDetected ? 'camera on' : 'no camera';
-    }
-  } catch(err){
-    faceDetected = !!localStream;
-    faceStatus.innerText = 'camera on';
-  }
-}
-
-// generate questions from keywords (very simple heuristic)
-function generateQuestionsFromResume(text){
-  text = (text||'').toLowerCase();
-  const ks = text.split(/[^a-z0-9]+/).filter(s=>s.length>2);
-  const keywords = [...new Set(ks)].slice(0,30);
-  const q = [];
-
-  // HR questions
-  const hr = [
-    "Tell me about yourself and your background.",
-    "Why do you want to work at this company?",
-    "Describe a challenge you faced and how you handled it.",
-    "Where do you see yourself in 3 years?"
-  ];
-  q.push(...hr);
-
-  // technical questions derived from keywords
-  const techTemplates = [
-    k => `Explain a project where you used ${k}. What was your role and outcome?`,
-    k => `How would you solve a performance problem involving ${k}?`,
-    k => `What trade-offs did you consider when designing a system using ${k}?`
-  ];
-  // if keywords present add up to 4 technical
-  let techCount = 0;
-  for(let k of keywords){
-    if(techCount>=4) break;
-    // skip common words
-    if(['experience','working','company','skills','project'].includes(k)) continue;
-    q.push( techTemplates[techCount % techTemplates.length](k) );
-    techCount++;
-  }
-
-  // pad with common technical questions if too few
-  const commonTech = [
-    "Describe your debugging process for a tough bug.",
-    "How do you design scalable systems?",
-    "Explain a data structure you used to optimize performance."
-  ];
-  while(q.length < 6) q.push(commonTech[q.length % commonTech.length]);
-
-  // limit to 6-8
-  return q.slice(0,8);
-}
-
-// UI: populate question display
+// show question
 function showQuestion(i){
   if(i<0 || i>=questions.length) return;
   questionText.innerText = questions[i];
   qIndex.innerText = i+1;
-  qTotal.innerText = questions.length;
   progressBar.style.width = `${Math.round(((i+1)/questions.length)*100)}%`;
 }
 
-// Generate (button)
-genBtn.onclick = ()=>{
-  const t = resumeText.value.trim();
-  if(!t){
-    alert('Please paste a short resume snippet or click "Use Sample Resume".');
-    return;
-  }
-  questions = generateQuestionsFromResume(t);
+// start interview
+startInterview.onclick = () => {
+  if(questions.length === 0){ alert("No questions configured."); return; }
   qIdx = 0;
   showQuestion(qIdx);
-  recordings = [];
-  recordingsList.innerText = 'none yet';
-  transcriptEl.innerText = '—';
-  endControls.innerHTML = `<button id="endBtn" class="btn" style="background:#bb3d3d">End Interview</button>`;
-  document.getElementById('endBtn').onclick = finishInterview;
+  speakQ.disabled = false;
+  recordBtn.disabled = false;
   nextQ.disabled = false;
+  startInterview.disabled = true;
 };
 
-// Use sample resume
-useSample.onclick = ()=>{
-  const sample = "Backend engineer with 5 years experience in Python, Django, REST, PostgreSQL, AWS, machine learning projects, data pipelines and CI/CD.";
-  resumeText.value = sample;
-  genBtn.click();
+// speak question
+speakQ.onclick = () => {
+  const u = new SpeechSynthesisUtterance(questions[qIdx] || "No question.");
+  speechSynthesis.speak(u);
 };
 
-// Speech Synthesis: read question
-speakQ.onclick = ()=>{
-  const utter = new SpeechSynthesisUtterance(questions[qIdx] || "No question available.");
-  utter.rate = 1;
-  utter.pitch = 1;
-  window.speechSynthesis.speak(utter);
-};
-
-// Setup MediaRecorder for audio (record from mic)
+// prepare MediaRecorder for audio (microphone)
 async function prepareRecorder(){
-  try {
-    const s = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const options = { mimeType: 'audio/webm' };
-    mediaRecorder = new MediaRecorder(s, options);
-    mediaRecorder.ondataavailable = e => {
-      if(e.data && e.data.size>0) recordedChunks.push(e.data);
-    };
-    mediaRecorder.onstop = async ()=>{
-      const blob = new Blob(recordedChunks, { type: 'audio/webm' });
-      recordedChunks = [];
-      // save blob to recordings with basic info
-      const text = transcriptEl.innerText === '—' ? '' : transcriptEl.innerText;
-      const duration = (Date.now() - startTime) / 1000;
-      recordings.push({ q: questions[qIdx], text, blob, duration });
-      updateRecordingsUI();
-    };
-  } catch(e){
-    alert('Microphone access required to record answers: ' + e);
+  if(!mediaStream){
+    // fallback: ask audio only
+    try {
+      mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch(e){
+      alert("Microphone permission required to record answers.");
+      return;
+    }
   }
+  const audioOnly = new MediaStream(mediaStream.getAudioTracks());
+  recordedChunks = [];
+  mediaRecorder = new MediaRecorder(audioOnly);
+  mediaRecorder.ondataavailable = (ev)=> {
+    if(ev.data && ev.data.size>0) recordedChunks.push(ev.data);
+  };
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+    recordedChunks = [];
+    const url = URL.createObjectURL(blob);
+    const audio = document.createElement('audio');
+    audio.controls = true;
+    audio.src = url;
+    const meta = document.createElement('div');
+    meta.className = 'muted';
+    meta.innerText = `Q${recordings.length+1}: ${ (new Date()).toLocaleTimeString() }`;
+    const wrap = document.createElement('div');
+    wrap.appendChild(audio);
+    wrap.appendChild(meta);
+    recordingsList.appendChild(wrap);
+  };
 }
 
-recordBtn.onclick = async ()=>{
+recordBtn.onclick = async () => {
   if(isRecording) return;
   if(!mediaRecorder) await prepareRecorder();
-  transcriptEl.innerText = 'listening...';
-  // start recognition if available
-  if(window.webkitSpeechRecognition || window.SpeechRecognition){
-    try {
-      let Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!mediaRecorder){
+    return;
+  }
+  recordedChunks = [];
+  mediaRecorder.start();
+  isRecording = true;
+  recordBtn.disabled = true;
+  stopRec.disabled = false;
+  transcriptEl.innerText = "listening...";
+  // try SpeechRecognition
+  try {
+    const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(Rec){
       recognition = new Rec();
       recognition.lang = 'en-US';
       recognition.interimResults = true;
-      recognition.maxAlternatives = 1;
-      recognition.onresult = (ev)=>{
+      recognition.onresult = (ev) => {
         let txt = '';
         for(let i=0;i<ev.results.length;i++){
           txt += ev.results[i][0].transcript;
         }
         transcriptEl.innerText = txt;
       };
-      recognition.onerror = (ev)=>{ console.log('recognition error', ev); };
       recognition.start();
-    } catch(e){
-      console.log('SpeechRecognition start error', e);
     }
-  } else {
-    // no speech recognition: inform user
-    transcriptEl.innerText = 'No speech recognition available in this browser.';
+  } catch(e){
+    // ignore
   }
-
-  recordedChunks = [];
-  mediaRecorder.start();
-  startTime = Date.now();
-  isRecording = true;
-  recordBtn.disabled = true;
-  stopRec.disabled = false;
 };
 
-stopRec.onclick = ()=>{
-  if(!isRecording) return;
+stopRec.onclick = () => {
+  if(mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
   if(recognition){
-    try{ recognition.stop(); }catch(e){}
+    try { recognition.stop(); } catch(e){}
   }
-  mediaRecorder.stop();
   isRecording = false;
   recordBtn.disabled = false;
   stopRec.disabled = true;
+  // store short metadata
+  const t = transcriptEl.innerText || '';
+  recordings.push({ q: questions[qIdx], transcript: t, time: Date.now() });
 };
 
-// Next question
-nextQ.onclick = ()=>{
-  if(qIdx >= questions.length-1){
-    alert('This was the last question. Click End Interview to finish and see feedback.');
-    return;
+nextQ.onclick = () => {
+  if(qIdx < questions.length - 1) {
+    qIdx++;
+    showQuestion(qIdx);
+    transcriptEl.innerText = '—';
+  } else {
+    alert("This was the last question. Click Finish (when available) to see feedback.");
   }
-  qIdx++;
-  showQuestion(qIdx);
-  transcriptEl.innerText = '—';
 };
 
-// update recordings UI
-function updateRecordingsUI(){
-  if(recordings.length===0){
-    recordingsList.innerText = 'none yet';
-    return;
-  }
-  recordingsList.innerHTML = '';
-  recordings.forEach((r,i)=>{
-    const item = document.createElement('div');
-    item.style.marginBottom='8px';
-    const url = URL.createObjectURL(r.blob);
-    const audio = document.createElement('audio');
-    audio.controls = true;
-    audio.src = url;
-    const meta = document.createElement('div');
-    meta.className='small';
-    meta.innerText = `Q${i+1}: ${r.duration.toFixed(1)}s — Transcript: ${r.text.substring(0,120)}`;
-    item.appendChild(audio);
-    item.appendChild(meta);
-    recordingsList.appendChild(item);
+// simple finish: compute heuristics client-side and POST to /feedback
+function computeFeedback(){
+  let totalWords = 0, fillers = 0;
+  const fillerList = ['um','uh','like','you know','so','actually','basically'];
+  recordings.forEach(r=>{
+    const t = (r.transcript || "").toLowerCase();
+    totalWords += (t.split(/\s+/).filter(Boolean)).length;
+    fillerList.forEach(f => {
+      const re = new RegExp('\\b'+f+'\\b','g');
+      const m = t.match(re);
+      if(m) fillers += m.length;
+    });
   });
-}
-
-// End interview and compute feedback
-function finishInterview(){
-  if(recordings.length===0){
-    if(!confirm('You have 0 recorded answers. Are you sure you want to finish?')) return;
-  }
-  // compute heuristics
-  // content relevance: simple: count question keywords present in transcript
-  let totalRelevance = 0;
-  let totalFillers = 0;
-  let totalWords = 0;
-  let totalTime = 0;
-  recordings.forEach((r,idx)=>{
-    const q = (r.q || '').toLowerCase();
-    const t = (r.text || '').toLowerCase();
-    const qWords = q.split(/\W+/).filter(Boolean);
-    let hits = 0;
-    qWords.forEach(w=>{ if(w.length>3 && t.includes(w)) hits++; });
-    const rel = qWords.length? Math.min(1, hits / Math.max(1, Math.min(qWords.length,6))) : 0;
-    totalRelevance += rel;
-    // filler words
-    let fcount = 0;
-    fillerList.forEach(f=>{ const re = new RegExp('\\b'+f+'\\b','g'); const m = t.match(re); if(m) fcount += m.length; });
-    totalFillers += fcount;
-    const wcount = t.split(/\s+/).filter(Boolean).length;
-    totalWords += wcount;
-    totalTime += r.duration || 0.0001;
-  });
-  const n = Math.max(1, recordings.length);
-  const avgRel = Math.round(100 * (totalRelevance / n));
-  const avgFiller = Math.round(totalFillers);
-  const wpm = Math.round(totalWords / (totalTime/60 || 1));
-  const posture = faceDetected ? 90 : 50;
-  // confidence heuristic: more words and fewer fillers => higher score
-  const conf = Math.max(30, Math.min(95, Math.round(60 + (wpm-100)/2 - avgFiller*2 + (avgRel-50)/2)));
-  // set UI
-  feedbackArea.classList.remove('hidden');
-  m_content.innerText = avgRel + ' %';
-  m_filler.innerText = avgFiller + ' (lower is better)';
-  m_wpm.innerText = wpm + ' wpm';
-  m_posture.innerText = posture + ' %';
-  m_conf.innerText = conf + ' %';
-
-  // show download button action
-  downloadReport.onclick = ()=>{
-    const report = {
-      created: new Date().toISOString(),
-      questions_count: questions.length,
-      recordings_count: recordings.length,
-      content_relevance_pct: avgRel,
-      filler_count: avgFiller,
-      wpm: wpm,
-      posture_pct: posture,
-      overall_confidence_pct: conf,
-      recordings: recordings.map((r,i)=>({ q: r.q, transcript: r.text, duration: r.duration }))
-    };
-    const blob = new Blob([JSON.stringify(report,null,2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'interview_report.json';
-    a.click();
+  const feedback = {
+    questions_count: questions.length,
+    recordings_count: recordings.length,
+    total_words: totalWords,
+    filler_count: fillers,
+    posture_estimate: mediaStream ? 85 : 40
   };
-
-  // replace endControls with message
-  endControls.innerHTML = '<div class="small">Interview finished. Use the report or replay recordings above.</div>';
+  return feedback;
 }
 
-// initial state
-qTotal.innerText = '0';
-qIndex.innerText = '0';
-stopRec.disabled = true;
+// when interview done (we add a finish button dynamically)
+function showFinish(){
+  endControls.innerHTML = '';
+  const btn = document.createElement('button');
+  btn.className = 'btn';
+  btn.innerText = 'Finish & Get Feedback';
+  btn.onclick = async () => {
+    const fb = computeFeedback();
+    await fetch('/feedback', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(fb)
+    });
+    window.location.href = '/feedback';
+  };
+  endControls.appendChild(btn);
+}
 
-// small helpful UX: prevent leaving page while recording
-window.addEventListener('beforeunload', (e) => {
-  if(isRecording) {
-    e.preventDefault();
-    e.returnValue = '';
-  }
+// when interview started enable finish after first answer recorded
+const origStop = stopRec.onclick;
+stopRec.addEventListener('click', ()=> {
+  // whenever user stops a recording, show finish button if not shown
+  showFinish();
 });
 
 </script>

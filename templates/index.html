@@ -1,74 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Interview Trainer</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: white;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-    h1 {
-      font-size: 2.8rem;
-      margin-bottom: 10px;
-      letter-spacing: 1px;
-    }
-    p {
-      font-size: 1.2rem;
-      color: #d1e8ff;
-      margin-bottom: 40px;
-      max-width: 600px;
-    }
-    .btn {
-      background: linear-gradient(to right, #00b4db, #0083b0);
-      border: none;
-      color: white;
-      padding: 15px 40px;
-      margin: 10px;
-      font-size: 1rem;
-      border-radius: 30px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-decoration: none;
-    }
-    .btn:hover {
-      background: linear-gradient(to right, #007a99, #005f73);
-      transform: translateY(-3px);
-    }
-    footer {
-      position: absolute;
-      bottom: 20px;
-      color: #ccc;
-      font-size: 0.9rem;
-    }
-    .container {
-      animation: fadeIn 1.5s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>AI Interview Trainer — Home</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
-  <div class="container">
+<body class="home-page">
+  <div class="hero">
     <h1>AI Interview Trainer</h1>
-    <p>
-      Enhance your interview confidence with real-time, AI-powered feedback on your
-      voice, content, and body language.
-    </p>
-    <a href="/login" class="btn">Login to Begin</a>
-  </div>
+    <p>Enhance your interview confidence with AI-driven practice — voice, content, and posture feedback.</p>
 
-  <footer>© 2025 AI Interview Trainer | Designed for Smart Professionals</footer>
+    <div class="center-card">
+      <h3>Ready to practice?</h3>
+      <div class="card-controls">
+        <a class="btn" href="{{ url_for('login') }}">Login</a>
+        <a class="btn outline" href="{{ url_for('signup') }}">Sign Up</a>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

@@ -1,82 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Upload Your Resume</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: white;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-      color: #00b4db;
-    }
-    p {
-      color: #d1e8ff;
-      margin-bottom: 30px;
-    }
-    .upload-box {
-      border: 2px dashed #00b4db;
-      border-radius: 20px;
-      padding: 40px;
-      width: 350px;
-      text-align: center;
-      transition: 0.3s;
-      background-color: rgba(255, 255, 255, 0.05);
-    }
-    .upload-box:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-      transform: scale(1.02);
-    }
-    input[type="file"] {
-      margin-top: 20px;
-      color: white;
-    }
-    .btn {
-      background: linear-gradient(to right, #00b4db, #0083b0);
-      border: none;
-      color: white;
-      padding: 15px 40px;
-      margin-top: 30px;
-      font-size: 1rem;
-      border-radius: 30px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-decoration: none;
-    }
-    .btn:hover {
-      background: linear-gradient(to right, #007a99, #005f73);
-      transform: translateY(-3px);
-    }
-    footer {
-      position: absolute;
-      bottom: 20px;
-      color: #ccc;
-      font-size: 0.9rem;
-    }
-  </style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Upload Resume — AI Interview Trainer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
-  <h1>Upload Your Resume</h1>
-  <p>Please upload your resume to begin your AI-powered interview training.</p>
+<body class="upload-page">
+  <div class="page-card">
+    <h1>Upload Your Resume</h1>
+    <p>Please upload a PDF resume (client-side processing). The file remains on your machine/server for this demo.</p>
 
-  <form action="/upload" method="post" enctype="multipart/form-data">
-    <div class="upload-box">
-      <label for="resume">Drag & Drop or Click to Upload</label><br />
-      <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required />
-    </div>
-    <button type="submit" class="btn">Start Interview</button>
-  </form>
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
 
-  <footer>© 2025
+    <form method="post" action="{{ url_for('upload_resume') }}" enctype="multipart/form-data">
+      <div class="upload-box">
+        <input type="file" id="resume" name="resume" accept=".pdf" required>
+      </div>
+      <div style="margin-top:16px;">
+        <button class="btn" type="submit">Start Interview</button>
+        <a class="btn outline" href="{{ url_for('logout') }}">Logout</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

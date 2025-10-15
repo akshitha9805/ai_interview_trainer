@@ -1,93 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login | AI Interview Trainer</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #283e51, #485563);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      color: white;
-    }
-
-    .login-box {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 40px 50px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-      text-align: center;
-      width: 350px;
-      animation: fadeIn 1.5s ease;
-    }
-
-    h2 {
-      margin-bottom: 25px;
-      color: #00bcd4;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 5px;
-      font-size: 1rem;
-    }
-
-    .btn {
-      background: linear-gradient(to right, #00b4db, #0083b0);
-      color: white;
-      border: none;
-      width: 100%;
-      padding: 12px;
-      border-radius: 25px;
-      font-size: 1rem;
-      cursor: pointer;
-      margin-top: 15px;
-      transition: all 0.3s ease;
-    }
-
-    .btn:hover {
-      background: linear-gradient(to right, #007a99, #005f73);
-      transform: translateY(-2px);
-    }
-
-    p {
-      margin-top: 20px;
-      color: #ddd;
-    }
-
-    a {
-      color: #00bcd4;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Login — AI Interview Trainer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
-  <div class="login-box">
+<body class="auth-page">
+  <div class="auth-card">
     <h2>Login</h2>
-    <form action="/upload" method="get">
-      <input type="text" placeholder="Username" required>
-      <input type="password" placeholder="Password" required>
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+    <form method="post" action="{{ url_for('login') }}">
+      <input name="username" placeholder="Username" required>
+      <input name="password" type="password" placeholder="Password" required>
       <button class="btn" type="submit">Login</button>
     </form>
-    <p>Don't have an account? <a href="/signup">Sign up</a></p>
+    <div class="muted">Don't have an account? <a href="{{ url_for('signup') }}">Sign up</a></div>
   </div>
 </body>
 </html>

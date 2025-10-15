@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Setup — AI Interview Trainer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="setup-page">
+  <div class="page-card wide">
+    <div class="two-col">
+      <div>
+        <h2>Resume summary</h2>
+        <div class="summary-box">{{ resume_summary }}</div>
+
+        <h3 style="margin-top:18px">Edit snippet (optional)</h3>
+        <form method="post" action="{{ url_for('setup_interview') }}">
+          <textarea name="snippet" rows="6" placeholder="Optional: refine snippet used to generate questions">{{ resume_summary }}</textarea>
+
+          <div style="margin-top:12px;">
+            <label>Number of questions</label>
+            <select name="n_questions">
+              <option value="6">6</option>
+              <option value="8" selected>8</option>
+              <option value="10">10</option>
+            </select>
+          </div>
+
+          <div style="margin-top:14px;">
+            <button class="btn" type="submit">Begin Interview (go to camera page)</button>
+            <a class="btn outline" href="{{ url_for('upload_resume') }}">Back</a>
+          </div>
+        </form>
+      </div>
+
+      <div>
+        <h2>Camera & Mic (only on interview page)</h2>
+        <p>When you click Begin Interview you'll be taken to the Interview page. There you'll enable camera & microphone — questions won't appear until you allow them (realistic).</p>
+        <div class="muted">Tip: Allow camera & microphone to get posture & voice feedback in the interview.</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

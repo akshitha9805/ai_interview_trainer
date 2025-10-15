@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Feedback</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="center-card">
+    <div class="brand small">Session Feedback</div>
+    <h2>Minimal Feedback (summary)</h2>
+    {% if data %}
+      <div class="card" style="text-align:left; white-space:pre-wrap;">
+        Questions answered: {{ data.questions_count }}<br>
+        Content relevance: {{ data.content_relevance_pct }} %<br>
+        Filler words (total): {{ data.filler_count }}<br>
+        Speaking rate: {{ data.speaking_rate_wpm }} wpm<br>
+        Posture (est): {{ data.posture_pct }} %<br>
+        Confidence (est): {{ data.confidence_pct }} %<br>
+      </div>
+      <div style="margin-top:12px"><a href="{{ url_for('upload_resume') }}" class="btn">New Session</a>
+      <a href="{{ url_for('logout') }}" class="btn btn-ghost">Logout</a></div>
+    {% else %}
+      <p>No feedback yet. Run an interview first.</p>
+      <a href="{{ url_for('upload_resume') }}" class="btn">Start</a>
+    {% endif %}
+  </div>
+</body>
+</html>
