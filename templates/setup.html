@@ -1,44 +1,91 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Setup — AI Interview Trainer</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body class="setup-page">
-  <div class="page-card wide">
-    <div class="two-col">
-      <div>
-        <h2>Resume summary</h2>
-        <div class="summary-box">{{ resume_summary }}</div>
+{% extends "base.html" %}
+{% block content %}
 
-        <h3 style="margin-top:18px">Edit snippet (optional)</h3>
-        <form method="post" action="{{ url_for('setup_interview') }}">
-          <textarea name="snippet" rows="6" placeholder="Optional: refine snippet used to generate questions">{{ resume_summary }}</textarea>
+<div class="setup-page">
 
-          <div style="margin-top:12px;">
-            <label>Number of questions</label>
-            <select name="n_questions">
-              <option value="6">6</option>
-              <option value="8" selected>8</option>
-              <option value="10">10</option>
-            </select>
-          </div>
+  <div class="setup-card">
 
-          <div style="margin-top:14px;">
-            <button class="btn" type="submit">Begin Interview (go to camera page)</button>
-            <a class="btn outline" href="{{ url_for('upload_resume') }}">Back</a>
-          </div>
-        </form>
-      </div>
+    <h1 class="setup-title">Camera & Microphone Setup</h1>
+    <p class="setup-text">Enable your camera and microphone before starting the AI interview.</p>
 
-      <div>
-        <h2>Camera & Mic (only on interview page)</h2>
-        <p>When you click Begin Interview you'll be taken to the Interview page. There you'll enable camera & microphone — questions won't appear until you allow them (realistic).</p>
-        <div class="muted">Tip: Allow camera & microphone to get posture & voice feedback in the interview.</div>
-      </div>
+    <!-- Live Camera Preview -->
+    <video id="video" autoplay playsinline muted class="setup-video"></video>
+
+    <!-- Buttons -->
+    <div class="setup-buttons">
+      <button id="enableCam" class="btn">Turn On Camera</button>
+      <button id="startInterview" class="btn outline" style="display:none;">
+        Proceed to Interview →
+      </button>
     </div>
+
   </div>
-</body>
-</html>
+
+</div>
+
+<style>
+  .setup-page {
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .setup-card {
+    background: #fff;
+    padding: 35px;
+    width: 420px;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+
+  .setup-title {
+    font-size: 26px;
+    margin-bottom: 10px;
+    color: #043241;
+  }
+
+  .setup-text {
+    color: #555;
+    margin-bottom: 20px;
+  }
+
+  .setup-video {
+    width: 100%;
+    max-width: 360px;
+    height: 260px;
+    background: #000;
+    border-radius: 12px;
+    margin: 15px auto;
+    object-fit: cover;
+  }
+
+  .setup-buttons .btn {
+    width: 100%;
+    margin-top: 12px;
+  }
+</style>
+
+<script>
+const enableBtn = document.getElementById('enableCam');
+const startBtn = document.getElementById('startInterview');
+const video = document.getElementById('video');
+
+enableBtn.addEventListener('click', async () => {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        video.srcObject = stream;
+        enableBtn.style.display = 'none';
+        startBtn.style.display = 'block';
+    } catch (err) {
+        alert('Camera or microphone access denied.');
+        console.error(err);
+    }
+});
+
+startBtn.addEventListener('click', () => {
+    window.location.href = "{{ url_for('interview') }}";
+});
+</script>
+
+{% endblock %}

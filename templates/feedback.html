@@ -1,29 +1,194 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Feedback</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
-  <div class="center-card">
-    <div class="brand small">Session Feedback</div>
-    <h2>Minimal Feedback (summary)</h2>
-    {% if data %}
-      <div class="card" style="text-align:left; white-space:pre-wrap;">
-        Questions answered: {{ data.questions_count }}<br>
-        Content relevance: {{ data.content_relevance_pct }} %<br>
-        Filler words (total): {{ data.filler_count }}<br>
-        Speaking rate: {{ data.speaking_rate_wpm }} wpm<br>
-        Posture (est): {{ data.posture_pct }} %<br>
-        Confidence (est): {{ data.confidence_pct }} %<br>
+{% extends "base.html" %}
+{% block content %}
+
+<body class="upload-page">
+
+  <div class="page-card wide" style="padding-top: 10px;">
+
+    <!-- HEADER -->
+    <div style="
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      margin-bottom: 20px;
+    ">
+      <h1 style="margin:0;">📊 Interview Feedback Report</h1>
+
+      <div>
+        <a href="{{ url_for('download_report') }}" class="btn" style="margin-right:10px;">⬇ Download PDF</a>
+        <a href="{{ url_for('index') }}" class="btn outline" style="margin-right:10px;">🏠 Home</a>
+        <a href="{{ url_for('logout') }}" class="btn outline">🚪 Logout</a>
       </div>
-      <div style="margin-top:12px"><a href="{{ url_for('upload_resume') }}" class="btn">New Session</a>
-      <a href="{{ url_for('logout') }}" class="btn btn-ghost">Logout</a></div>
-    {% else %}
-      <p>No feedback yet. Run an interview first.</p>
-      <a href="{{ url_for('upload_resume') }}" class="btn">Start</a>
-    {% endif %}
+    </div>
+
+    <!-- CANDIDATE INFO -->
+    <div class="info-box" style="
+      padding:15px;
+      margin-bottom:20px;
+      border-radius:12px;
+      background:#f4f8ff;
+      border-left:4px solid #3c6aff;
+    ">
+      <strong>Name:</strong> {{ data.candidate_name }} <br>
+      <strong>Date:</strong> {{ data.timestamp }}
+    </div>
+
+    <!-- OVERALL SCORE BADGE -->
+    <div style="text-align:center; margin-bottom:20px;">
+      <div style="
+        display:inline-block;
+        background:#3c6aff;
+        color:white;
+        padding:15px 35px;
+        border-radius:50px;
+        font-size:24px;
+        font-weight:600;
+        box-shadow:0 4px 10px rgba(0,0,0,0.1);
+      ">
+        ⭐ Overall Score: {{ data.overall_score }}
+      </div>
+    </div>
+
+    <!-- GRID: Radar Chart + Scores -->
+    <div class="two-col" style="align-items:flex-start; gap:25px;">
+
+      <!-- Radar -->
+      <div class="card">
+        <h2 class="card-title">Performance Overview</h2>
+        <p class="muted" style="margin-top:10px;">
+          Radar chart will appear in the downloadable PDF report.
+        </p>
+      </div>
+
+      <!-- Score Table -->
+      <div class="card">
+        <h2 class="card-title">Score Breakdown</h2>
+
+        <table class="score-table">
+          <tr><th>Metric</th><th>Score</th></tr>
+          <tr><td>Confidence</td><td>{{ data.confidence }}</td></tr>
+          <tr><td>Clarity</td><td>{{ data.clarity }}</td></tr>
+          <tr><td>Technical Accuracy</td><td>{{ data.technical_accuracy }}</td></tr>
+          <tr><td>Behavioral Quality</td><td>{{ data.behavioral_quality }}</td></tr>
+          <tr><td>Emotion Stability</td><td>{{ data.emotion_stability }}</td></tr>
+          <tr><td>Answer Structure</td><td>{{ data.answer_structure }}</td></tr>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- STRENGTHS & WEAKNESSES -->
+    <div class="two-col" style="margin-top:25px; gap:25px;">
+
+      <div class="card">
+        <h2 class="card-title">Strengths</h2>
+        {% if data.strengths %}
+          <ul class="list">
+            {% for s in data.strengths %}
+              <li>{{ s }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="muted">No strengths identified.</p>
+        {% endif %}
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Areas to Improve</h2>
+        {% if data.weaknesses %}
+          <ul class="list">
+            {% for w in data.weaknesses %}
+              <li>{{ w }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="muted">No improvement points identified.</p>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- COURSE RECOMMENDATION -->
+    <div class="card" style="margin-top:25px;">
+      <h2 class="card-title">Recommended Courses</h2>
+
+      {% if data.recommended_courses %}
+      <ul class="list">
+        {% for c in data.recommended_courses %}
+          <li>{{ c }}</li>
+        {% endfor %}
+      </ul>
+      {% else %}
+        <p class="muted">No recommendations available.</p>
+      {% endif %}
+    </div>
+
+    <!-- TRANSCRIPT -->
+    <div class="card" style="margin-top:25px;">
+      <h2 class="card-title">Interview Transcript</h2>
+
+      {% if data.transcript %}
+        <div class="transcript">
+          {% for line in data.transcript %}
+            {% if line.speaker %}
+              <p><strong>{{ line.speaker }}:</strong> {{ line.text }}</p>
+            {% else %}
+              <p>{{ line }}</p>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="muted">Transcript not available.</p>
+      {% endif %}
+    </div>
+
+    <!-- RECORDED CLIPS -->
+    <div class="card" style="margin-top:25px;">
+      <h2 class="card-title">Recorded Clips</h2>
+
+      {% if data.clips %}
+        <ul class="list">
+          {% for c in data.clips %}
+            <li>🎥 {{ c.filename }} — Question {{ c.qindex }}</li>
+          {% endfor %}
+        </ul>
+        <p class="muted">*(Video files saved locally.)*</p>
+      {% else %}
+        <p class="muted">No video clips recorded.</p>
+      {% endif %}
+    </div>
+
   </div>
+
+<style>
+  .card {
+    background:white;
+    padding:18px;
+    border-radius:12px;
+    box-shadow:var(--shadow);
+  }
+  .card-title {
+    margin-bottom:10px;
+    font-size:20px;
+    color:#043241;
+  }
+  .score-table {
+    width:100%;
+    border-collapse:collapse;
+  }
+  .score-table th {
+    background:#f0f4ff;
+    padding:8px;
+  }
+  .score-table td {
+    padding:8px;
+    border-bottom:1px solid #eee;
+  }
+  .list li {
+    margin-bottom:6px;
+  }
+</style>
+
 </body>
-</html>
+
+{% endblock %}

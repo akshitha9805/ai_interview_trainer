@@ -1,23 +1,93 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Login — AI Interview Trainer</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body class="auth-page">
-  <div class="auth-card">
-    <h2>Login</h2>
-    {% if error %}
+{% extends "base.html" %}
+{% block content %}
+
+<div class="auth-page">
+
+  <div class="auth-container">
+
+    <!-- LEFT: Illustration -->
+    <div class="auth-illustration">
+      <img src="{{ url_for('static', filename='images/illustrations/ai_futuristic_interview.png') }}"
+           alt="Login Illustration"
+           class="auth-illustration-img">
+    </div>
+
+    <!-- RIGHT: Login Card -->
+    <div class="auth-card">
+      <h2 class="auth-title">Welcome Back</h2>
+      <p class="auth-subtext">Login to continue your AI-powered interview journey.</p>
+
+      {% if error %}
       <div class="error">{{ error }}</div>
-    {% endif %}
-    <form method="post" action="{{ url_for('login') }}">
-      <input name="username" placeholder="Username" required>
-      <input name="password" type="password" placeholder="Password" required>
-      <button class="btn" type="submit">Login</button>
-    </form>
-    <div class="muted">Don't have an account? <a href="{{ url_for('signup') }}">Sign up</a></div>
+      {% endif %}
+
+      <form method="post" action="{{ url_for('login') }}">
+        <input name="username" placeholder="Username" required class="auth-input">
+        <input name="password" type="password" placeholder="Password" required class="auth-input">
+
+        <button class="btn auth-btn" type="submit">Login</button>
+      </form>
+
+      <p class="muted" style="margin-top:12px;">
+        Don't have an account?  
+        <a href="{{ url_for('signup') }}" class="link-bold">Sign Up</a>
+      </p>
+    </div>
+
   </div>
-</body>
-</html>
+
+</div>
+
+<style>
+  .auth-page {
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .auth-container {
+    display: flex;
+    gap: 50px;
+    align-items: center;
+    flex-wrap: wrap;
+    max-width: 1000px;
+  }
+  .auth-illustration-img {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 18px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  }
+  .auth-card {
+    background: #fff;
+    padding: 28px;
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    width: 360px;
+  }
+  .auth-title {
+    color: #043241;
+    margin-bottom: 6px;
+  }
+  .auth-subtext {
+    color: #555;
+    margin-bottom: 18px;
+  }
+  .auth-input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #d2dbe5;
+    margin-bottom: 14px;
+    font-size: 14px;
+  }
+  .auth-btn {
+    width: 100%;
+    margin-top: 6px;
+  }
+  .link-bold {
+    font-weight: 600;
+    color: var(--accent-dark);
+  }
+</style>
+
+{% endblock %}

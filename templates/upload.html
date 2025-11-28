@@ -1,29 +1,70 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Upload Resume — AI Interview Trainer</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body class="upload-page">
-  <div class="page-card">
-    <h1>Upload Your Resume</h1>
-    <p>Please upload a PDF resume (client-side processing). The file remains on your machine/server for this demo.</p>
+{% extends "base.html" %}
+{% block content %}
 
-    {% if error %}
+<div class="page-card wide" style="padding:36px;">
+
+  <h1 class="page-title">Upload Your Resume</h1>
+
+  <div class="two-col" style="align-items:center; gap:40px;">
+
+    <!-- LEFT PANEL -->
+    <div style="flex:1; min-width:320px;">
+      <h2 style="color:#043241;">Resume Upload</h2>
+      <p class="muted">
+        Upload your PDF resume. Our AI will extract skills, experience, and education 
+        to generate personalized interview questions.
+      </p>
+
+      {% if error %}
       <div class="error">{{ error }}</div>
-    {% endif %}
+      {% endif %}
 
-    <form method="post" action="{{ url_for('upload_resume') }}" enctype="multipart/form-data">
-      <div class="upload-box">
-        <input type="file" id="resume" name="resume" accept=".pdf" required>
-      </div>
-      <div style="margin-top:16px;">
-        <button class="btn" type="submit">Start Interview</button>
-        <a class="btn outline" href="{{ url_for('logout') }}">Logout</a>
-      </div>
-    </form>
+      <form method="POST" action="{{ url_for('upload_resume') }}" enctype="multipart/form-data">
+
+        <div class="upload-box futuristic-box">
+          <input type="file" name="resume" accept=".pdf" required>
+        </div>
+
+        <button class="btn-primary" type="submit" style="margin-top:18px;">Start Interview</button>
+        <a class="btn-secondary" href="{{ url_for('logout') }}" style="margin-left:10px;">Logout</a>
+
+      </form>
+    </div>
+
+    <!-- RIGHT ILLUSTRATION -->
+    <div style="flex:1; min-width:320px; text-align:center;">
+      <img src="{{ url_for('static', filename='images/illustrations/resume_ai_summary.png') }}"
+           alt="Resume Processing Illustration"
+           class="illustration-img">
+    </div>
+
   </div>
-</body>
-</html>
+
+</div>
+
+
+<style>
+  .page-title {
+    text-align:center;
+    color:#022c43;
+    margin-bottom:24px;
+    font-size:32px;
+    font-weight:700;
+  }
+
+  .futuristic-box {
+    border:2px dashed #028b9d;
+    padding:20px;
+    border-radius:12px;
+    background:#f0fafc;
+  }
+
+  .illustration-img {
+    width:100%;
+    max-width:360px;
+    border-radius:16px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.12);
+  }
+</style>
+
+{% endblock %}

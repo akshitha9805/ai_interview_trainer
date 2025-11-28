@@ -1,6 +1,11 @@
-Flask==3.1.2
-PyPDF2==3.0.1
-openai
-python-dotenv
+Flask==3.0.0
 gunicorn
+spacy==3.7.2
+PyPDF2
+reportlab
+matplotlib
+numpy
+werkzeug==3.0.1
 
+# install spaCy model from URL (Render will pip install this)
+https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz

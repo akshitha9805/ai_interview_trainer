@@ -1,59 +1,63 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Camera Setup</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <style>
-        video {
-            width: 480px;
-            height: 360px;
-            border-radius: 10px;
-            background: #000;
-            margin-top: 20px;
-        }
-        button {
-            margin-top: 20px;
-            background-color: #00bcd4;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Camera & Mic Setup</h1>
-        <p>Click below to enable your camera and microphone before the interview starts.</p>
-        <video id="video" autoplay muted></video>
-        <br>
-        <button id="enableCam">Turn On Camera</button>
-        <button id="startInterview" style="display:none;">Proceed to Interview</button>
+{% extends "base.html" %}
+{% block content %}
+
+<body class="interview-page">
+
+<div class="page-card wide">
+
+    <h1 style="text-align:center;">Camera & Microphone Setup</h1>
+    <p style="text-align:center; max-width:600px; margin:0 auto;">
+        Please enable your camera and microphone so that IntervYou can analyze your
+        communication, confidence, and facial expressions during the interview.
+    </p>
+
+    <div class="two-col" style="margin-top:30px;">
+
+        <!-- LEFT — Live Camera Preview -->
+        <div id="camera-box">
+            <video id="preview" autoplay playsinline></video>
+
+            <div style="margin-top:15px;">
+                <button class="btn" id="enable">Enable Camera & Mic</button>
+                <button class="btn-outline" id="disable">Disable</button>
+            </div>
+
+            <p id="status" class="muted">Camera is off.</p>
+        </div>
+
+        <!-- RIGHT — Illustration -->
+        <div style="text-align:center;">
+            <img src="{{ url_for('static', filename='images/illustrations/interview_ai.png') }}"
+                 alt="AI Interview Illustration"
+                 style="width:100%; max-width:360px;">
+        </div>
+
     </div>
 
-    <script>
-        const enableBtn = document.getElementById('enableCam');
-        const startBtn = document.getElementById('startInterview');
-        const video = document.getElementById('video');
+    <div style="text-align:center; margin-top:30px;">
+        <a href="/interview" class="btn" style="width:260px;">Proceed to Interview →</a>
+    </div>
 
-        enableBtn.addEventListener('click', async () => {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                video.srcObject = stream;
-                enableBtn.style.display = 'none';
-                startBtn.style.display = 'inline-block';
-            } catch (err) {
-                alert('Camera or microphone access denied.');
-                console.error(err);
-            }
-        });
+</div>
 
-        startBtn.addEventListener('click', () => {
-            window.location.href = "{{ url_for('interview') }}";
-        });
-    </script>
+<script>
+let stream;
+
+document.getElementById("enable").onclick = async () => {
+    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    document.getElementById("preview").srcObject = stream;
+    document.getElementById("status").textContent = "Camera & microphone enabled.";
+};
+
+document.getElementById("disable").onclick = () => {
+    if (stream){
+        stream.getTracks().forEach(t => t.stop());
+    }
+    document.getElementById("preview").srcObject = null;
+    document.getElementById("status").textContent = "Camera is off.";
+};
+</script>
+
 </body>
-</html>
+
+{% endblock %}

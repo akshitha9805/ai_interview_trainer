@@ -1,23 +1,106 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>AI Interview Trainer — Home</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body class="home-page">
-  <div class="hero">
-    <h1>AI Interview Trainer</h1>
-    <p>Enhance your interview confidence with AI-driven practice — voice, content, and posture feedback.</p>
+{% extends "base.html" %}
+{% block content %}
 
-    <div class="center-card">
-      <h3>Ready to practice?</h3>
-      <div class="card-controls">
-        <a class="btn" href="{{ url_for('login') }}">Login</a>
-        <a class="btn outline" href="{{ url_for('signup') }}">Sign Up</a>
-      </div>
+<style>
+  .hero-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 40px;
+    padding: 40px 10px;
+  }
+
+  .hero-text {
+    flex: 1;
+    min-width: 320px;
+    animation: slideInLeft 0.8s ease;
+  }
+
+  .hero-title {
+    font-size: 46px;
+    font-weight: 700;
+    color: #022c43;
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+
+  .hero-desc {
+    font-size: 18px;
+    color: #34596c;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  .btn-primary {
+    background: #0059ff;
+    color: white;
+    padding: 12px 26px;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    margin-right: 12px;
+  }
+
+  .btn-secondary {
+    border: 2px solid #0059ff;
+    color: #0059ff;
+    padding: 12px 26px;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+  }
+
+  .hero-image {
+    flex: 1;
+    min-width: 320px;
+    text-align: center;
+    animation: slideInRight 0.8s ease;
+  }
+
+  .hero-image img {
+    width: 100%;
+    max-width: 450px;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+  }
+
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+</style>
+
+<div class="hero-section">
+
+  <!-- Left Side Text -->
+  <div class="hero-text">
+    <div class="hero-title">
+      AI-Powered Interview Preparation<br>
+      For Your Next Big Opportunity
     </div>
+
+    <p class="hero-desc">
+      Experience a futuristic mock-interview system with real-time AI analysis,
+      voice assessment, facial cues evaluation, and dynamic question generation.
+      Practice smarter. Perform better. Ace interviews with confidence.
+    </p>
+
+    <a href="{{ url_for('login') }}" class="btn-primary">Start Now</a>
+    <a href="{{ url_for('signup') }}" class="btn-secondary">Sign Up</a>
   </div>
-</body>
-</html>
+
+  <!-- Right Side Futuristic Illustration -->
+  <div class="hero-image">
+    <img src="{{ url_for('static', filename='images/illustrations/ai_futuristic_interview.png') }}"
+         alt="AI Interview Illustration">
+  </div>
+
+</div>
+
+{% endblock %}

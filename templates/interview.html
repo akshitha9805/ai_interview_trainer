@@ -1,287 +1,395 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Interview — AI Interview Trainer</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Live Interview — IntervYou</title>
+
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  <style>
+    .layout {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 30px;
+      align-items: start;
+    }
+    #videoElem {
+      width: 100%;
+      border-radius: 12px;
+      background:black;
+    }
+    .hr-photo {
+      width:140px;
+      height:140px;
+      border-radius:50%;
+      object-fit:cover;
+      box-shadow:0 4px 12px rgba(0,0,0,0.2);
+    }
+    .question-box {
+      padding:15px;
+      background:#f5f8ff;
+      border-radius:8px;
+      margin-bottom:12px;
+      font-size:17px;
+    }
+    .transcript-box {
+      background:white;
+      padding:10px;
+      border-radius:8px;
+      height:150px;
+      overflow-y:auto;
+      border:1px solid #ddd;
+      font-size:15px;
+    }
+    .hidden { display:none; }
+  </style>
 </head>
-<body class="interview-page">
-  <div class="page-card wide">
-    <h2>Live Interview — Simulation</h2>
 
-    <div class="interview-layout">
-      <!-- Left: Video -->
-      <div class="video-pane">
-        <div class="video-wrap">
-          <video id="videoElem" playsinline autoplay muted></video>
-        </div>
-        <div style="margin-top:12px;">
-          <button id="enableMedia" class="btn">Enable Camera & Mic</button>
-          <button id="stopMedia" class="btn outline" disabled>Stop</button>
-          <div id="mediaStatus" class="muted" style="margin-top:8px">Camera is off — questions will appear after enabling.</div>
-        </div>
-      </div>
+<body class="upload-page">
 
-      <!-- Right: Questions & Controls -->
-      <div class="control-pane">
-        <div id="qPanel" class="hidden">
-          <div class="question-box" id="questionText">Press Start Interview to begin</div>
+<div style="text-align:center; margin-bottom:20px;">
+  <img src="{{ url_for('static', filename='images/logo/interyou.png') }}" style="height:70px;">
+</div>
 
-          <div class="controls-row">
-            <button id="startInterview" class="btn">Start Interview</button>
-            <button id="speakQ" class="btn" disabled>🔈 Speak Question</button>
-            <button id="recordBtn" class="btn" style="background:#1db954" disabled>● Record</button>
-            <button id="stopRec" class="btn outline" disabled>■ Stop</button>
-            <button id="nextQ" class="btn outline" disabled>Next</button>
-          </div>
+<div class="page-card wide">
 
-          <div style="margin-top:12px">
-            <div class="muted">Question <span id="qIndex">0</span> / <span id="qTotal">0</span></div>
-            <div class="progress"><div id="progressBar"></div></div>
-          </div>
+  <h1 style="text-align:center; margin-bottom:25px;">🎯 Live AI Interview</h1>
 
-          <div style="margin-top:12px">
-            <h3>Latest Transcript</h3>
-            <div id="transcript" class="transcript">—</div>
-            <h3 style="margin-top:12px">Recordings</h3>
-            <div id="recordingsList" class="recordings-list">none yet</div>
-          </div>
+  <div class="layout">
 
-          <div id="endControls" style="margin-top:14px"></div>
-        </div>
+    <!-- LEFT SIDE : USER CAMERA -->
+    <div>
+      <video id="videoElem" autoplay muted playsinline></video>
 
-        <div id="mediaBlockedPanel" class="muted">
-          Questions appear after you enable camera & microphone.
-        </div>
+      <div style="margin-top:12px;">
+        <button id="enableMedia" class="btn">Enable Camera & Mic</button>
+        <button id="stopMedia" class="btn outline" disabled>Stop</button>
+        <div id="mediaStatus" class="muted" style="margin-top:6px;">Camera is off.</div>
       </div>
     </div>
+
+    <!-- RIGHT SIDE : HR + INTERVIEW -->
+    <div>
+
+      <div style="text-align:center;">
+        <img src="{{ url_for('static', filename='images/avatar/hr_idle.png') }}" id="hrAvatar" class="hr-photo">
+        <div class="muted">Virtual HR — Mr. James</div>
+      </div>
+
+      <div id="qPanel" class="hidden">
+
+        <div id="questionText" class="question-box">
+          Press “Start Interview” to begin.
+        </div>
+
+        <div style="display:flex; gap:10px; margin-bottom:8px;">
+          <button id="startInterview" class="btn">Start</button>
+          <button id="recordBtn" class="btn" disabled>🎙 Record</button>
+          <button id="stopRec" class="btn outline" disabled>■ Stop</button>
+          <button id="nextQ" class="btn outline" disabled>Next →</button>
+        </div>
+
+        <div class="muted">Question <span id="qIndex">0</span> / <span id="qTotal">0</span></div>
+
+        <h3 style="margin-top:15px;">Transcript</h3>
+        <div id="transcript" class="transcript-box">—</div>
+
+        <h3 style="margin-top:15px;">AI Feedback</h3>
+        <div id="analysis" class="transcript-box">—</div>
+
+      </div>
+
+    </div>
+
   </div>
 
+</div>
+
+<!-- =============================== -->
+<!--          JAVASCRIPT            -->
+<!-- =============================== -->
 <script>
-// client-side interaction
-const questions = {{ questions|tojson }};
-let qIdx = 0;
-let recordings = [];
+/* -----------------------------------------------------------
+   DATA FROM SERVER
+----------------------------------------------------------- */
+const questions = {{ questions|tojson }} || [];
+let qIndex = 0;
+
 let mediaStream = null;
 let mediaRecorder = null;
 let recordedChunks = [];
-let recognition = null;
+
 let isRecording = false;
+let recognition = null;
+let recognitionAvailable = false;
 
-// elements
-const videoElem = document.getElementById('videoElem');
-const enableMedia = document.getElementById('enableMedia');
-const stopMedia = document.getElementById('stopMedia');
-const mediaStatus = document.getElementById('mediaStatus');
-const qPanel = document.getElementById('qPanel');
-const startInterview = document.getElementById('startInterview');
-const speakQ = document.getElementById('speakQ');
-const recordBtn = document.getElementById('recordBtn');
-const stopRec = document.getElementById('stopRec');
-const nextQ = document.getElementById('nextQ');
-const questionText = document.getElementById('questionText');
-const qIndex = document.getElementById('qIndex');
-const qTotal = document.getElementById('qTotal');
-const progressBar = document.getElementById('progressBar');
-const transcriptEl = document.getElementById('transcript');
-const recordingsList = document.getElementById('recordingsList');
-const endControls = document.getElementById('endControls');
+let collectedTranscript = [];
 
-qTotal.innerText = questions.length || 0;
+let synth = window.speechSynthesis;
 
-// enable camera & mic - until user allows, questions hidden
-enableMedia.onclick = async () => {
+/* -----------------------------------------------------------
+   ELEMENTS
+----------------------------------------------------------- */
+const enableBtn = document.getElementById("enableMedia");
+const stopBtn   = document.getElementById("stopMedia");
+const videoElem = document.getElementById("videoElem");
+const hrAvatar  = document.getElementById("hrAvatar");
+
+const startBtn  = document.getElementById("startInterview");
+const recordBtn = document.getElementById("recordBtn");
+const stopRecBtn= document.getElementById("stopRec");
+const nextBtn   = document.getElementById("nextQ");
+
+const qPanel     = document.getElementById("qPanel");
+const questionBox= document.getElementById("questionText");
+const transcriptBox = document.getElementById("transcript");
+const qIndexHTML = document.getElementById("qIndex");
+const qTotalHTML = document.getElementById("qTotal");
+const mediaStatus = document.getElementById("mediaStatus");
+
+qTotalHTML.textContent = questions.length;
+
+/* -----------------------------------------------------------
+   UTILITY: Safe HTML
+----------------------------------------------------------- */
+function escapeHtml(unsafe) {
+  return unsafe.replace(/[&<>"']/g,function(m){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]);
+  });
+}
+
+/* -----------------------------------------------------------
+   APPEND TRANSCRIPT
+----------------------------------------------------------- */
+function appendTranscript(entry){
+  if(!entry || !entry.text) return;
+  const last = collectedTranscript[collectedTranscript.length-1];
+
+  if(last && last.speaker === entry.speaker && last.text === entry.text) return;
+
+  collectedTranscript.push(entry);
+
+  const p = document.createElement("p");
+  p.innerHTML = `<b>${entry.speaker}:</b> ${escapeHtml(entry.text)}`;
+  transcriptBox.appendChild(p);
+  transcriptBox.scrollTop = transcriptBox.scrollHeight;
+}
+
+/* -----------------------------------------------------------
+   CAMERA ENABLE
+----------------------------------------------------------- */
+enableBtn.onclick = async () => {
   try {
-    mediaStream = await navigator.mediaDevices.getUserMedia({ video: { width:640 }, audio: true });
+    mediaStream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
     videoElem.srcObject = mediaStream;
-    mediaStatus.innerText = "Camera & mic enabled.";
-    enableMedia.disabled = true;
-    stopMedia.disabled = false;
-    // show questions panel now that media is available
-    qPanel.classList.remove('hidden');
-    document.getElementById('mediaBlockedPanel').style.display = 'none';
+
+    enableBtn.disabled = true;
+    stopBtn.disabled = false;
+    recordBtn.disabled = false;
+    qPanel.classList.remove("hidden");
+    mediaStatus.textContent = "Camera & mic ready.";
   } catch (e) {
-    alert("Unable to access camera/microphone. Please allow permissions.");
+    alert("Please allow camera and microphone access.");
   }
 };
 
-stopMedia.onclick = () => {
-  if(mediaStream){
+/* -----------------------------------------------------------
+   STOP CAMERA
+----------------------------------------------------------- */
+stopBtn.onclick = () => {
+  if (mediaStream){
     mediaStream.getTracks().forEach(t => t.stop());
     mediaStream = null;
-    videoElem.srcObject = null;
   }
-  mediaStatus.innerText = "Camera stopped.";
-  enableMedia.disabled = false;
-  stopMedia.disabled = true;
-  qPanel.classList.add('hidden');
-  document.getElementById('mediaBlockedPanel').style.display = 'block';
+  videoElem.srcObject = null;
+
+  enableBtn.disabled = false;
+  stopBtn.disabled = true;
+  recordBtn.disabled = true;
+  stopRecBtn.disabled = true;
+
+  mediaStatus.textContent = "Camera stopped.";
 };
 
-// show question
-function showQuestion(i){
-  if(i<0 || i>=questions.length) return;
-  questionText.innerText = questions[i];
-  qIndex.innerText = i+1;
-  progressBar.style.width = `${Math.round(((i+1)/questions.length)*100)}%`;
+/* -----------------------------------------------------------
+   HR SPEECH
+----------------------------------------------------------- */
+function speak(text){
+  return new Promise(res=>{
+    hrAvatar.src="{{ url_for('static', filename='images/avatar/hr_talking.gif') }}";
+
+    const u = new SpeechSynthesisUtterance(text);
+    u.onend = () => {
+      hrAvatar.src="{{ url_for('static', filename='images/avatar/hr_idle.png') }}";
+      setTimeout(res, 200);
+    };
+
+    synth.speak(u);
+  });
 }
 
-// start interview
-startInterview.onclick = () => {
-  if(questions.length === 0){ alert("No questions configured."); return; }
-  qIdx = 0;
-  showQuestion(qIdx);
-  speakQ.disabled = false;
-  recordBtn.disabled = false;
-  nextQ.disabled = false;
-  startInterview.disabled = true;
-};
+/* -----------------------------------------------------------
+   SHOW QUESTION
+----------------------------------------------------------- */
+function showQuestion(i, text){
+  questionBox.textContent = text;
+  qIndexHTML.textContent = i+1;
+  appendTranscript({speaker:"HR", text:text});
+}
 
-// speak question
-speakQ.onclick = () => {
-  const u = new SpeechSynthesisUtterance(questions[qIdx] || "No question.");
-  speechSynthesis.speak(u);
-};
+/* -----------------------------------------------------------
+   INIT SPEECH RECOGNITION
+----------------------------------------------------------- */
+if (window.SpeechRecognition || window.webkitSpeechRecognition){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = "en-US";
+  recognition.continuous = false;
+  recognition.interimResults = false;
 
-// prepare MediaRecorder for audio (microphone)
-async function prepareRecorder(){
-  if(!mediaStream){
-    // fallback: ask audio only
+  recognition.onresult = e => {
     try {
-      mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    } catch(e){
-      alert("Microphone permission required to record answers.");
-      return;
-    }
-  }
-  const audioOnly = new MediaStream(mediaStream.getAudioTracks());
-  recordedChunks = [];
-  mediaRecorder = new MediaRecorder(audioOnly);
-  mediaRecorder.ondataavailable = (ev)=> {
-    if(ev.data && ev.data.size>0) recordedChunks.push(ev.data);
+      const text = e.results[0][0].transcript.trim();
+      appendTranscript({speaker:"User", text});
+    } catch {}
   };
-  mediaRecorder.onstop = () => {
-    const blob = new Blob(recordedChunks, { type: 'audio/webm' });
-    recordedChunks = [];
-    const url = URL.createObjectURL(blob);
-    const audio = document.createElement('audio');
-    audio.controls = true;
-    audio.src = url;
-    const meta = document.createElement('div');
-    meta.className = 'muted';
-    meta.innerText = `Q${recordings.length+1}: ${ (new Date()).toLocaleTimeString() }`;
-    const wrap = document.createElement('div');
-    wrap.appendChild(audio);
-    wrap.appendChild(meta);
-    recordingsList.appendChild(wrap);
-  };
+
+  recognition.onerror = ()=>{};
+  recognitionAvailable = true;
 }
 
-recordBtn.onclick = async () => {
-  if(isRecording) return;
-  if(!mediaRecorder) await prepareRecorder();
-  if(!mediaRecorder){
+/* -----------------------------------------------------------
+   RECORDING
+----------------------------------------------------------- */
+async function startRecording(){
+  if(!mediaStream){
+    alert("Enable camera & mic first.");
     return;
   }
+
+  if(isRecording) return;
+
   recordedChunks = [];
+  mediaRecorder = new MediaRecorder(mediaStream);
+  
+  mediaRecorder.ondataavailable = e => {
+    if(e.data.size > 0) recordedChunks.push(e.data);
+  };
+
+  mediaRecorder.onstop = uploadClip;
+
   mediaRecorder.start();
   isRecording = true;
+
   recordBtn.disabled = true;
-  stopRec.disabled = false;
-  transcriptEl.innerText = "listening...";
-  // try SpeechRecognition
-  try {
-    const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if(Rec){
-      recognition = new Rec();
-      recognition.lang = 'en-US';
-      recognition.interimResults = true;
-      recognition.onresult = (ev) => {
-        let txt = '';
-        for(let i=0;i<ev.results.length;i++){
-          txt += ev.results[i][0].transcript;
-        }
-        transcriptEl.innerText = txt;
-      };
-      recognition.start();
-    }
-  } catch(e){
-    // ignore
-  }
-};
+  stopRecBtn.disabled = false;
 
-stopRec.onclick = () => {
-  if(mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop();
-  if(recognition){
-    try { recognition.stop(); } catch(e){}
+  if(recognitionAvailable){
+    setTimeout(() => {
+      try { recognition.start(); } catch {}
+    }, 350);
   }
+}
+
+function stopRecording(){
+  if(!isRecording) return;
+
+  try { recognition.stop(); } catch {}
+  try { mediaRecorder.stop(); } catch {}
+
   isRecording = false;
+  stopRecBtn.disabled = true;
   recordBtn.disabled = false;
-  stopRec.disabled = true;
-  // store short metadata
-  const t = transcriptEl.innerText || '';
-  recordings.push({ q: questions[qIdx], transcript: t, time: Date.now() });
-};
+}
 
-nextQ.onclick = () => {
-  if(qIdx < questions.length - 1) {
-    qIdx++;
-    showQuestion(qIdx);
-    transcriptEl.innerText = '—';
-  } else {
-    alert("This was the last question. Click Finish (when available) to see feedback.");
+recordBtn.onclick = startRecording;
+stopRecBtn.onclick = stopRecording;
+
+/* -----------------------------------------------------------
+   CLIP UPLOAD
+----------------------------------------------------------- */
+async function uploadClip(){
+  if(!recordedChunks.length) return;
+
+  const blob = new Blob(recordedChunks,{type:"video/webm"});
+  const fd = new FormData();
+
+  fd.append("clip", blob, `q${qIndex+1}.webm`);
+  fd.append("qindex", String(qIndex+1));
+  fd.append("question_text", questions[qIndex].question_text);
+
+  mediaStatus.textContent = "Uploading clip...";
+
+  try{
+    await fetch("/upload_clip", { method:"POST", body:fd });
+    mediaStatus.textContent = "Clip uploaded.";
+  } catch {
+    mediaStatus.textContent = "Upload failed.";
   }
+
+  setTimeout(() => mediaStatus.textContent = "Camera & mic ready.", 800);
+}
+
+/* -----------------------------------------------------------
+   START INTERVIEW
+----------------------------------------------------------- */
+startBtn.onclick = async () => {
+  startBtn.disabled = true;
+  nextBtn.disabled = false;
+
+  transcriptBox.innerHTML = "";
+  collectedTranscript = [];
+
+  const intro = "Hello, I am Mr. James, your virtual HR. Please answer naturally.";
+  appendTranscript({speaker:"HR", text:intro});
+  await speak(intro);
+
+  qIndex = 0;
+  const qtext = questions[0].question_text;
+  showQuestion(0, qtext);
+  await speak(qtext);
 };
 
-// simple finish: compute heuristics client-side and POST to /feedback
-function computeFeedback(){
-  let totalWords = 0, fillers = 0;
-  const fillerList = ['um','uh','like','you know','so','actually','basically'];
-  recordings.forEach(r=>{
-    const t = (r.transcript || "").toLowerCase();
-    totalWords += (t.split(/\s+/).filter(Boolean)).length;
-    fillerList.forEach(f => {
-      const re = new RegExp('\\b'+f+'\\b','g');
-      const m = t.match(re);
-      if(m) fillers += m.length;
-    });
-  });
-  const feedback = {
-    questions_count: questions.length,
-    recordings_count: recordings.length,
-    total_words: totalWords,
-    filler_count: fillers,
-    posture_estimate: mediaStream ? 85 : 40
-  };
-  return feedback;
+/* -----------------------------------------------------------
+   END MESSAGE ON INTERVIEW FINISH
+----------------------------------------------------------- */
+async function speakEndMessage(){
+  const msg = "Thank you. Your interview has ended.";
+  appendTranscript({speaker:"HR", text:msg});
+  await speak(msg);
 }
 
-// when interview done (we add a finish button dynamically)
-function showFinish(){
-  endControls.innerHTML = '';
-  const btn = document.createElement('button');
-  btn.className = 'btn';
-  btn.innerText = 'Finish & Get Feedback';
-  btn.onclick = async () => {
-    const fb = computeFeedback();
-    await fetch('/feedback', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(fb)
-    });
-    window.location.href = '/feedback';
-  };
-  endControls.appendChild(btn);
-}
+/* -----------------------------------------------------------
+   NEXT QUESTION
+----------------------------------------------------------- */
+nextBtn.onclick = async () => {
+  if(isRecording) stopRecording();
 
-// when interview started enable finish after first answer recorded
-const origStop = stopRec.onclick;
-stopRec.addEventListener('click', ()=> {
-  // whenever user stops a recording, show finish button if not shown
-  showFinish();
-});
+  qIndex++;
+
+  if(qIndex >= questions.length){
+
+    await speakEndMessage();
+
+    await fetch("/save_transcript",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ transcript: collectedTranscript })
+    });
+
+    await fetch("/feedback_analysis",{ method:"POST" });
+
+    window.location.href="/feedback";
+    return;
+  }
+
+  const qtext = questions[qIndex].question_text;
+  showQuestion(qIndex, qtext);
+  await speak(qtext);
+};
 
 </script>
+
 </body>
 </html>

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+  <title>IntervYou — AI Interview Trainer</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Global Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #e9f2ff, #ffffff);
+      font-family: 'Inter', sans-serif;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .site-header {
+      width: 100%;
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      background: #ffffffaa;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .site-logo {
+      height: 58px;
+      object-fit: contain;
+    }
+
+    .page-wrapper {
+      padding: 30px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <img src="{{ url_for('static', filename='images/logo/interyou.png') }}" 
+         alt="IntervYou Logo" class="site-logo">
+  </header>
+
+  <div class="page-wrapper">
+    {% block content %}{% endblock %}
+  </div>
+
+</body>
+</html>
