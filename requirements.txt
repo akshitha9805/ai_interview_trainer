@@ -1,15 +1,12 @@
 Flask==3.0.0
-gunicorn==21.2.0
-
-# spaCy (force using prebuilt wheels)
-spacy==3.7.2
-blis==0.7.10
-
-# spaCy language model
-https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz
-
+gunicorn
+spacy==3.4.4
+numpy<2
 PyPDF2
 reportlab
 matplotlib
-numpy
 werkzeug==3.0.1
+
+# spaCy model
+https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.4.1/en_core_web_sm-3.4.1.tar.gz
+
