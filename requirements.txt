@@ -1,15 +1,15 @@
 Flask==3.0.0
-gunicorn
+gunicorn==21.2.0
+
+# spaCy (use prebuilt wheels to avoid BLIS compile errors)
 spacy==3.7.2
+blis==0.7.10
+
+# spaCy model (must be installed via URL)
+https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz
+
 PyPDF2
 reportlab
 matplotlib
 numpy
 werkzeug==3.0.1
-
-# install spaCy model from URL (Render will pip install this)
-https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz
-
-spacy==3.7.2
-blis==0.7.10
-https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz
