@@ -1,21 +1,14 @@
-# --- Core ---
 Flask==3.0.0
 gunicorn==21.2.0
-werkzeug==3.0.1
-numpy==1.26.4
+Werkzeug==3.0.1
 
-# --- spaCy (Render compatible) ---
-spacy==3.4.4
-blis==0.7.9
+PyPDF2==3.0.1
+reportlab==4.0.6
 
-# spaCy small model (3.4.x version)
-https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.4.0/en_core_web_sm-3.4.0.tar.gz
+matplotlib==3.8.2
+numpy==1.26.2
 
-# --- PDF & Report ---
-PyPDF2
-reportlab
+spacy==3.7.2
+en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1-py3-none-any.whl
 
-# --- Optional ---
-matplotlib
-
-
+typing-extensions==4.8.0
