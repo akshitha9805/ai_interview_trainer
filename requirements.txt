@@ -1,11 +1,11 @@
 Flask==3.0.0
 gunicorn==21.2.0
 
-# spaCy (use prebuilt wheels to avoid BLIS compile errors)
+# spaCy (force using prebuilt wheels)
 spacy==3.7.2
 blis==0.7.10
 
-# spaCy model (must be installed via URL)
+# spaCy language model
 https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz
 
 PyPDF2
